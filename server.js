@@ -1,24 +1,53 @@
-const express=require('express')
-const app=express()
-const data=require('./data/weather.json')
+const express = require("express");
+const app = express();
+const data = require("./data/weather.json");
 
-app.get('/',
-function (req,res){
-    res.send('hello ')
-})
-app.get('/weather',
-function (req,res){
+let newArray=[];
 
-   let theCity= data.find(city=>{
-          console.log(city.lat)
-          console.log('query',req.query['lat']);
-      return Number(req.query['lat']) === Number(city.lat)&& city
+app.get("/", function (req, res) {
+  res.send("hello ");
+});
+app.get("/weather", function (req, res) {
 
-    })
-    console.log(theCity[0])
-    res.json(theCity)
-})
+  let theCity = data.find((city) => {
+    return (
+      Number(req.query["lat"]) === Number(city.lat) &&
+      Number(req.query["lon"]) === Number(city.lon) &&
+      req.query["searchQuery"].toLowerCase() === city.city_name.toLowerCase() &&
+      city
+    );
+  });
+    
+  
+  theCity.data.forEach(elem=>{
+    
+    newArray.push(new Forecast(elem.valid_date,`low of ${elem.low_temp} high of ${elem.max_temp}  ${elem.weather.description}`));
+  })
+  res.json(newArray);
+//   if(newArray){res.json(newArray); }
+//   else{res.status(500).send("something wrong in server")}
+  
+});
 
-app.listen(8000,()=>{
-    console.log('yehya')
-})
+
+
+class Forecast  {
+    constructor(date,description){
+        this.date=date;
+        this.description=description;
+    }
+}
+
+
+
+
+
+
+
+
+
+app.listen(8000, () => {
+  console.log("In 8000");
+});
+
+
