@@ -1,6 +1,6 @@
 
 const data = require("./data/weather.json");
-
+const axios=require('axios')
 class Forecast  {
     constructor(item){
         this.date=item.valid_date;
@@ -9,22 +9,19 @@ class Forecast  {
 }
 
 let weatherController= function (req, res) {
-    let queryCity;
-    req.query["q"]?queryCity=req.query["q"].toLowerCase():queryCity=''
-    let theCity = data.find((city) => {
-      return (
-        Number(req.query["lat"]) === city.lat||
-        Number(req.query["lon"]) === city.lon ||
-        queryCity === city.city_name.toLowerCase() &&
-        city
-      );
-    });
-    let arr=[];
-      theCity.data.map(item=>{
+  let name=req.query.city
+  const urlMovie=`https://api.weatherbit.io/v2.0/forecast/daily?city=${name}&key=${process.env.WEATHER_API_KEY}`
+  axios.get(urlMovie).then(item=>{
+         console.log(item.data);
+         let weatherArr=item.data.data;
+         let arr=[];
+         weatherArr.map(item=>{
         arr.push(new Forecast(item))
       })
+         res.json(arr)
 
-     res.json(arr); }
+    });
+ }
 
 
 
