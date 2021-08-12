@@ -6,7 +6,7 @@ require('dotenv').config();
 const cors=require('cors')
 app.use(cors());
 const port=process.env.PORT;
-const movie_url=`https://api.themoviedb.org/3/movie/top_rated`
+const movie_url=`https://api.themoviedb.org/3/search/movie`
 const movieKey=process.env.MOVIE_API_KEY;
 let weatherController=require('./weather.controller')
 
@@ -17,7 +17,8 @@ app.get("/weather",weatherController);
 
 
 app.get("/movie", function (req, res) {
-  const urlMovie=`${movie_url}?api_key=${movieKey}`
+  let name=req.query.query
+  const urlMovie=`${movie_url}?api_key=${movieKey}&query=${name}`
   axios.get(urlMovie).then(item=>{
          console.log(item.data);
          let moviesArr=item.data.results;
@@ -36,7 +37,6 @@ app.listen(port, () => {
 });
 
 
-
 class Movies{
   constructor(movie){
     this.release_date=movie.release_date,
@@ -49,4 +49,3 @@ class Movies{
 
   }
 }
-
