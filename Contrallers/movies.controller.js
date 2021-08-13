@@ -1,36 +1,31 @@
+const Movies = require("../Moduls/movies");
+require("dotenv").config();
+const movie_url = `https://api.themoviedb.org/3/search/movie`;
+const movieKey = process.env.MOVIE_API_KEY;
+const axios = require("axios");
+const Cache = require("../helpers/ForeCastCache.helper");
+const foreCastCaching = new Cache([]);
+let allName;
+const movieController = function (req, res) {
+  if (foreCastCaching.forcecastData.length && allName === req.query.city) {
+    console.log(foreCastCaching.timestamp);
+    res.json({ message: "from cache", data: foreCastCaching.forcecastData });
+  } else {
+    let name = req.query.query;
+    allName = name;
+    const urlMovie = `${movie_url}?api_key=${movieKey}&query=${name}`;
+    axios.get(urlMovie).then((item) => {
+      let movieArray = [];
+      let moviesArr = item.data.results;
+      moviesArr.map((movie) => {
+        movieArray.push(new Movies(movie));
+      });
+      foreCastCaching.forcecastData = movieArray;
+      res.json({ message: "from api", data: movieArray });
+    });
+  }
+};
 
-const Movies=require('../Moduls/movies')
-require('dotenv').config();
-const movie_url=`https://api.themoviedb.org/3/search/movie`
-const movieKey=process.env.MOVIE_API_KEY;
-const axios=require('axios');
-const Cache = require('../helpers/ForeCastCache.helper');
-const foreCastCaching=new Cache([])
-const  movieController = function  (req, res) {
+module.exports = movieController;
 
-   if(foreCastCaching.forcecastData.length){
-          res.json({message:'from cache',data:foreCastCaching.forcecastData})
-   }else{
-       let name=req.query.query
-       const urlMovie=`${movie_url}?api_key=${movieKey}&query=${name}`
-       axios.get(urlMovie).then(item=>{
-              let movieArray=[];
-              let moviesArr=item.data.results;
-                moviesArr.map(movie=>{
-                     movieArray.push( new Movies(movie))
-
-              })
-
-              foreCastCaching.forcecastData=movieArray;
-              res.json({message:'from api',data:movieArray})
-       })
-
-     }
-
-
-   }
-
-
-  module.exports=movieController;
-
-  //
+//
